@@ -7,24 +7,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  snyk_scan:
-    name: Snyk Dependency Scan
+  snyk_maven_scan:
+    name: Snyk Maven Scan (JDK 11)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run Snyk Scan
-        uses: snyk/actions@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
         with:
-          command: test
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Run Snyk Maven Scan
+        uses: snyk/actions/maven-3-jdk-11@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   sonarcloud_scan:
     name: SonarCloud Code Analysis
     runs-on: ubuntu-latest
-    needs: snyk_scan
+    needs: snyk_maven_scan
     steps:
       - uses: actions/checkout@v3
+
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
